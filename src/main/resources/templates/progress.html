@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="application/javascript">
+
+
+    </script>
+
+    <style rel="stylesheet">
+        .idiot-cover {
+            background-color: #000;
+            position: fixed;
+            z-index: 9999999;
+            opacity: 0.2;
+            filter: Alpha(opacity=70);
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        .idiot-progressBox {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 99999;
+            margin: auto;
+            min-width: 180px;
+            width: 170px;
+            height: 60px;
+            padding: 30px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 18px;
+
+        }
+
+        .idiot-progress {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .idiot-progress idiot-progress-title {
+            display: flex;
+            border: 2px solid #fff;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .idiot-progress .idiot-progress-title p {
+            color: #eee;
+            font-size: 17px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .idiot-progress img {
+            margin: 10px;
+            width: 35px;
+            height: 35px;
+        }
+    </style>
+
+
+    <script type="application/javascript">
+        function showLoading(title, modal) {
+            if (title == null || title == '' || title == undefined) {
+                title = '加载中。。。';
+            }
+            if (modal == null || modal == '' || modal == undefined) {
+                modal = false;
+            }
+            var body = document.getElementsByTagName("body")[0];
+            //console.log(body);
+            var html = "<div class='idiot-progressBox' id='idiotProgress'>" +
+                "<div class='idiot-progress'><img src='loading.gif'/>" +
+                "<div class='idiot-progress-title'><p>" + title + "</p></div>" +
+                "</div>" +
+                "</div>";
+            var modalhtml;
+            if (modal) {
+                modalhtml = "<div id='idiotCover' class='idiot-cover'></div>";
+            } else {
+                modalhtml = "<div id='idiotCover' class='idiot-cover' onclick='closeLoading()'></div>";
+            }
+            body.insertAdjacentHTML("afterbegin", modalhtml);
+            body.insertAdjacentHTML("afterbegin", html);
+        }
+
+        function closeLoading() {
+            var progress = document.getElementById("idiotProgress");
+            var cover = document.getElementById("idiotCover");
+            if (progress != null && progress != undefined) {
+                progress.parentNode.removeChild(progress);
+            }
+            if (cover != null && cover != undefined) {
+                cover.parentNode.removeChild(cover);
+            }
+        }
+    </script>
+</head>
+<body>
+<button onclick="showLoading('aaaa')">显示</button>
+<button onclick="closeLoading()">关闭</button>
+</body>
+</html>
