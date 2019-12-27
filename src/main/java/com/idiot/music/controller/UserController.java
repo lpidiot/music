@@ -5,15 +5,23 @@ package com.idiot.music.controller;
  **/
 
 import com.alibaba.fastjson.JSONObject;
+import com.idiot.music.annotation.PassToken;
 import com.idiot.music.annotation.UserLoginToken;
 import com.idiot.music.entity.SysUser;
 import com.idiot.music.service.SysUserService;
 import com.idiot.music.service.TokenService;
 import com.idiot.music.utils.AjaxResponse;
+import com.idiot.music.utils.HttpRequest;
+import com.idiot.music.utils.IdiotUtils;
+import org.jsoup.Jsoup;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @ClassName:userRestController
@@ -30,8 +38,10 @@ public class UserController {
 
     @ResponseBody
     @ExceptionHandler({RuntimeException.class})
-    public Object autRuntimeException() {
-        return AjaxResponse.error("token验证失败，请重新登陆");
+    public Object autRuntimeException(RuntimeException e) {
+
+        e.printStackTrace();
+        return AjaxResponse.error(e.getMessage());
     }
 
     @PostMapping(value = "/login")
@@ -70,34 +80,22 @@ public class UserController {
         }
     }
 
-    @DeleteMapping(value = "/user/{id}")
-    public AjaxResponse deleteUser(@PathVariable Integer id) {
-        try {
-            sysUserService.deleteById(id);
-            return AjaxResponse.success("删除成功");
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
+    /**
+     * 获取数据
+     *
+     * @return
+     */
+    @PassToken
+    @PostMapping("/musicUtil")
+    public Object musicUtil(@RequestBody JSONObject jsonParam) {
+        String url = jsonParam.getString("url");
+        if (jsonParam.getString("url") == null) {
+            return AjaxResponse.error("目标url地址为空！");
         }
-    }
-
-    @PutMapping(value = "/user/{id}")
-    public AjaxResponse updateUser(@PathVariable Integer id, @RequestBody SysUser data) {
-        try {
-            SysUser userData = sysUserService.findById(id);
-            BeanUtils.copyProperties(data, userData, "id");
-            sysUserService.save(userData);
-            return AjaxResponse.success();
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
-    }
-
-    @GetMapping(value = "/user/{id}")
-    public AjaxResponse getUser(@PathVariable Integer id) {
-        try {
-            return AjaxResponse.success(sysUserService.findById(id));
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
+        JSONObject headerJson = jsonParam.getJSONObject("header");
+        JSONObject paramsJson = jsonParam.getJSONObject("params");
+        HashMap<String, String> header = IdiotUtils.jsonToHaMap(headerJson);
+        HashMap<String, String> params = IdiotUtils.jsonToHaMap(paramsJson);
+        return HttpRequest.sendGet(url, header, params);
     }
 }
