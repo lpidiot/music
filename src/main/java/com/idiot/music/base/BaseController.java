@@ -5,8 +5,6 @@ package com.idiot.music.base;
  **/
 
 import com.idiot.music.utils.GenericsUtils;
-import com.sun.xml.internal.bind.v2.model.core.ID;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -15,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  *@Version:1.0
  **/
 public class BaseController<T>{
-    @SuppressWarnings("unchecked")
     private Class<T> clazz=GenericsUtils.getSuperClassGenricType(getClass());
-    @Autowired
-    private BaseService<T, ID> baseService;
 
 }

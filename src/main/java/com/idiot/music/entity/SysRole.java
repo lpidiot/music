@@ -4,7 +4,10 @@ package com.idiot.music.entity;
  * @date 2019/9/15 - 14:22
  **/
 
-import javax.persistence.*;
+import com.idiot.music.base.BaseEntity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 /**
  * @ClassName:SysRole
@@ -12,20 +15,9 @@ import javax.persistence.*;
  * @Version:1.0
  **/
 @Entity
-public class SysRole{
-    private Integer Id;
+public class SysRole extends BaseEntity {
     private String name;//权限名
     private String power;//权限
-
-    @Id
-    @GeneratedValue
-    public Integer getId() {
-        return Id;
-    }
-
-    public void setId(Integer id) {
-        Id = id;
-    }
 
     @Column(length = 20)
     public String getName() {

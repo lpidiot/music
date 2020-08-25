@@ -24,7 +24,7 @@ public class DemoApplicationTests {
 
     @Test
     public void contextLoads() {
-       /* BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         SysRole role = new SysRole();
         role.setPower("ROLE_ADMIN");
         role.setName("系统管理员");
@@ -34,7 +34,7 @@ public class DemoApplicationTests {
         admin.setPassword(encoder.encode("admin"));
         admin.setName("系统管理员");
         admin.getRoles().add(role);
-        userRepository.save(admin);*/
+        userRepository.save(admin);
     }
 
 }

@@ -4,9 +4,8 @@ package com.idiot.music.entity;
  * @date 2019/9/15 - 14:22
  **/
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.idiot.music.base.BaseEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,21 +18,10 @@ import java.util.List;
  **/
 @Inheritance(strategy = InheritanceType.JOINED)
 @Entity
-public class SysUser{
-    private Integer Id;
+public class SysUser extends BaseEntity {
     private String username;
     private String password;
     private String name;
-
-    @Id
-    @GeneratedValue
-    public Integer getId() {
-        return Id;
-    }
-
-    public void setId(Integer id) {
-        Id = id;
-    }
 
     @JsonIgnore
     private List<SysRole> roles = new ArrayList<>();

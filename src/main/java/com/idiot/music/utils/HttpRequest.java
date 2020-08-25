@@ -5,8 +5,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 public class HttpRequest {
@@ -17,7 +15,7 @@ public class HttpRequest {
      * @param params 请求参数，键值对形式(map)
      * @return URL 所代表远程资源的响应结果
      */
-    public static String sendGet(String url, HashMap<String, String> header, HashMap<String, String> params) {
+    public static String sendGet(String url, Map<String, String> header, Map<String, String> params) {
         String result = "";
         BufferedReader in = null;
         StringBuffer sb = new StringBuffer();
@@ -26,7 +24,6 @@ public class HttpRequest {
             sb.append("?");
         }
         try {
-
             if (params != null) {
                 for (Entry<String, String> entry : params.entrySet()) {
                     sb.append(entry.getKey());
@@ -36,10 +33,9 @@ public class HttpRequest {
                 }
                 param = sb.substring(0, sb.length() - 1);
             }
-            if(header!=null){
 
-            }
             String urlNameString = url + param;
+            System.out.println(urlNameString);
             URL realUrl = new URL(urlNameString);
             // 打开和URL之间的连接
             URLConnection connection = realUrl.openConnection();
@@ -56,11 +52,11 @@ public class HttpRequest {
             // 建立实际的连接
             connection.connect();
             // 获取所有响应头字段
-            Map<String, List<String>> map = connection.getHeaderFields();
+           // Map<String, List<String>> map = connection.getHeaderFields();
             // 遍历所有的响应头字段
-            for (String key : map.keySet()) {
+            /*for (String key : map.keySet()) {
                 System.out.println(key + "--->" + map.get(key));
-            }
+            }*/
             // 定义 BufferedReader输入流来读取URL的响应
             in = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
             String line;
@@ -87,7 +83,7 @@ public class HttpRequest {
     public static String sendGet(String url) {
         return sendGet(url,null,null);
     }
-    public static String sendGet(String url,HashMap<String, String> params) {
+    public static String sendGet(String url,Map<String, String> params) {
         return sendGet(url,null,params);
     }
 
@@ -95,7 +91,7 @@ public class HttpRequest {
      * 向指定 URL 发送POST方法的请求
      *
      * @param url   发送请求的 URL
-     * @param param 请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
+     * @param params 请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
      * @return 所代表远程资源的响应结果
      */
     public static String sendPost(String url, Map<String, Object> params) {
