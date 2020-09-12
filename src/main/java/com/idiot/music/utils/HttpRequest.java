@@ -28,6 +28,7 @@ public class HttpRequest {
                 for (Entry<String, String> entry : params.entrySet()) {
                     sb.append(entry.getKey());
                     sb.append("=");
+                    //replace(" ","%20")
                     sb.append(entry.getValue());
                     sb.append("&");
                 }
@@ -65,7 +66,7 @@ public class HttpRequest {
             }
         } catch (Exception e) {
             System.out.println("发送GET请求出现异常！" + e);
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         // 使用finally块来关闭输入流
         finally {
@@ -74,7 +75,8 @@ public class HttpRequest {
                     in.close();
                 }
             } catch (Exception e2) {
-                e2.printStackTrace();
+                //e2.printStackTrace();
+                System.out.println("关闭异常！" +e2);
             }
         }
         return result;

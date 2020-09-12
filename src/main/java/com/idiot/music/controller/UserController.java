@@ -34,7 +34,7 @@ public class UserController {
         return AjaxResponse.error(e.getMessage());
     }
 
-    @PostMapping(value = "/login")
+    @PostMapping(value = "/getToken")
     public Object checkLogin(@RequestBody SysUser userData) {
         SysUser user = sysUserService.findByUsername(userData.getUsername());
         System.out.println(userData.getPassword());

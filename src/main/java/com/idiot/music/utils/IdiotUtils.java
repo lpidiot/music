@@ -24,7 +24,9 @@ public class IdiotUtils {
             return null;
         }
         for (Map.Entry<String, Object> entry : jsonResource.entrySet()) {
-            map.put(entry.getKey(),entry.getValue().toString());
+            if(entry.getValue()!=null){
+                map.put(entry.getKey(),entry.getValue().toString());
+            }
         }
         return map;
     }

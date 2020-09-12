@@ -4,6 +4,7 @@ package com.idiot.music.controller;
  * @date 2019/12/13 - 15:14
  **/
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -11,8 +12,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.idiot.music.annotation.UserLoginToken;
 import com.idiot.music.entity.Configs;
-import com.idiot.music.entity.TestData;
 import com.idiot.music.service.ConfigsService;
 import com.idiot.music.service.TestDataService;
 import com.idiot.music.utils.AjaxResponse;
@@ -21,14 +22,17 @@ import com.idiot.music.utils.IdiotUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,19 +55,28 @@ public class TestRestController {
      *
      * @return
      */
+    @UserLoginToken
     @PostMapping("/getWebData")
     public Object musicUtil(@RequestBody JSONObject jsonParam) {
-        String url = jsonParam.getString("url");
-        if (jsonParam.getString("url") == null) {
-            return AjaxResponse.error("目标url地址为空！");
+        String result = null;
+        try {
+            String url = jsonParam.getString("url");
+            if (jsonParam.getString("url") == null) {
+                return AjaxResponse.error("目标url地址为空！");
+            }
+            //System.out.println(url);
+            JSONObject headerJson = jsonParam.getJSONObject("header");
+            JSONObject paramsJson = jsonParam.getJSONObject("params");
+            HashMap<String, String> header = IdiotUtils.jsonToHaMap(headerJson);
+            HashMap<String, String> params = IdiotUtils.jsonToHaMap(paramsJson);
+            result = HttpRequest.sendGet(url, header, params);
+        } catch (Exception e) {
+            return AjaxResponse.error("error");
         }
-        System.out.println(url);
-        JSONObject headerJson = jsonParam.getJSONObject("header");
-        JSONObject paramsJson = jsonParam.getJSONObject("params");
-
-        HashMap<String, String> header = IdiotUtils.jsonToHaMap(headerJson);
-        HashMap<String, String> params = IdiotUtils.jsonToHaMap(paramsJson);
-        return HttpRequest.sendGet(url, header, params);
+        if (result != null) {
+            return AjaxResponse.success(result);
+        }
+        return AjaxResponse.error("无法获取到数据");
     }
 
     @RequestMapping(value = "/updateCookie")
@@ -76,6 +89,7 @@ public class TestRestController {
         return AjaxResponse.success(configsService.findByMark("cookies"));
     }
 
+    @UserLoginToken
     @RequestMapping(value = "/qqq")
     public Object qqq() throws IOException, InterruptedException {
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
@@ -88,7 +102,9 @@ public class TestRestController {
         webClient.getOptions().setJavaScriptEnabled(true); //很重要，启用JS
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());//很重要，设置支持AJAX
 
-        HtmlPage page = webClient.getPage("https://xui.ptlogin2.qq.com/cgi-bin/xlogin?appid=716027609&daid=383&style=33&login_text=%E6%8E%88%E6%9D%83%E5%B9%B6%E7%99%BB%E5%BD%95&hide_title_bar=1&hide_border=1&target=self&s_url=https%3A%2F%2Fgraph.qq.com%2Foauth2.0%2Flogin_jump&pt_3rd_aid=100497308&pt_feedback_link=https%3A%2F%2Fsupport.qq.com%2Fproducts%2F77942%3FcustomInfo%3D.appid100497308");
+        HtmlPage page = webClient.getPage("https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code" +
+                "&client_id=100497308&redirect_uri=https%3A%2F%2Fy.qq.com%2Fportal%2Fwx_redirect.html%3Flogin_type%3D1%26surl%" +
+                "3Dhttps%253A%252F%252Fy.qq.com%252F%26use_customer_cb%3D0&state=state&display=pc");
         //DomElement loginFrame = page.getElementById("login_frame");
         // page = webClient.getPage(loginFrame.getAttribute("src"));
 
@@ -121,8 +137,7 @@ public class TestRestController {
         }*/
         return page;
     }
-
-    @RequestMapping("/getMusic")
+ /*   @RequestMapping("/getMusic")
     public Object getMusic(String songId, String quality) {
         //M50普通 M80高
         HashMap<String, String> header = new HashMap<>();
@@ -151,9 +166,62 @@ public class TestRestController {
         // String purl = jsonObject.getJSONObject("req_0").getJSONObject("data").getJSONArray("midurlinfo").getJSONObject(0).getString("purl");
         //return purl;
         return AjaxResponse.success(result);
+    }*/
+
+    @UserLoginToken
+    @RequestMapping("/getMusic")
+    public Object getMusic(@RequestBody JSONObject jsonParam) {
+        String result = null;
+        try {
+            String url = jsonParam.getString("url");
+            if (jsonParam.getString("url") == null) {
+                return AjaxResponse.error("目标url地址为空！");
+            }
+            //System.out.println(url);
+            JSONObject headerJson = jsonParam.getJSONObject("header");
+            JSONObject paramsJson = jsonParam.getJSONObject("params");
+            HashMap<String, String> header;
+            if (headerJson == null) {
+                header = new LinkedHashMap<>();
+            } else {
+                header = IdiotUtils.jsonToHaMap(headerJson);
+            }
+            String cookie = configsService.findByMark("cookies").getData();
+            if (cookie != null) {
+                header.put("Cookie", cookie);
+            }
+            HashMap<String, String> params = IdiotUtils.jsonToHaMap(paramsJson);
+            result = HttpRequest.sendGet(url, header, params);
+            if (result != null) {
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                JSONObject data = jsonObject.getJSONObject("req_0").getJSONObject("data");
+                jsonObject=null;
+                JSONArray midurlinfo = data.getJSONArray("midurlinfo");
+                JSONArray sip = data.getJSONArray("sip");
+                String purl = midurlinfo.getJSONObject(0).getString("purl");
+                String adr = sip.getString(0);
+                midurlinfo=null;
+                sip=null;
+                if(purl.indexOf("mp3")>0){
+                    //更新cookie
+                }
+                //System.out.println("====");
+               // System.out.println(result);
+                if(purl==null||purl.equals("\"\"")||purl.equals("")){
+                    //更新cookie
+                    System.out.println("???");
+                    return AjaxResponse.error("vip缓存失效 请等待更新");
+                }
+                return AjaxResponse.success(adr+purl);
+            }
+        } catch (Exception e) {
+            return AjaxResponse.error("error");
+        }
+
+        return AjaxResponse.error("无法获取到数据");
     }
 
-
+    @UserLoginToken
     @RequestMapping("/getVipMusic")
     public Object getVipMusic(String songId) throws MalformedURLException {
         //System.out.println(songId);
@@ -204,8 +272,8 @@ public class TestRestController {
             }
         }
         if (result != null) {
-            int s=0;
-            int d=0;
+            int s = 0;
+            int d = 0;
             try {
                 s = result.indexOf("[{\"songid") - 1;
                 d = result.indexOf("\"}];") + 3;
@@ -213,7 +281,7 @@ public class TestRestController {
             } catch (Exception e) {
                 return AjaxResponse.error();
             }
-            if(s==0||d==0||s>d){
+            if (s == 0 || d == 0 || s > d) {
                 return AjaxResponse.error();
             }
             return AjaxResponse.success(result.substring(s, d));
@@ -236,45 +304,45 @@ public class TestRestController {
 //        return AjaxResponse.success(rough.substring(s, d));
     }
 
-    @PostMapping(value = "/test")
-    public AjaxResponse saveArticle(@RequestBody TestData data) {
-        try {
-            service.save(data);
-            return AjaxResponse.success("保存成功");
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
-    }
-
-    @DeleteMapping(value = "/test/{id}")
-    public AjaxResponse deleteUser(@PathVariable Integer id) {
-        try {
-            service.deleteById(id);
-            return AjaxResponse.success("删除成功");
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
-    }
-
-    @PutMapping(value = "/test/{id}")
-    public AjaxResponse updateUser(@PathVariable Integer id, @RequestBody TestData data) {
-        try {
-            TestData testData = service.findById(id);
-            BeanUtils.copyProperties(data, testData, "id");
-            service.save(testData);
-            return AjaxResponse.success();
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
-    }
-
-    @GetMapping(value = "/test/{id}")
-    public AjaxResponse getUser(@PathVariable Integer id) {
-        try {
-            return AjaxResponse.success(service.findById(id));
-        } catch (Exception e) {
-            return AjaxResponse.error(e.getMessage());
-        }
-    }
+//    @PostMapping(value = "/test")
+//    public AjaxResponse saveArticle(@RequestBody TestData data) {
+//        try {
+//            service.save(data);
+//            return AjaxResponse.success("保存成功");
+//        } catch (Exception e) {
+//            return AjaxResponse.error(e.getMessage());
+//        }
+//    }
+//
+//    @DeleteMapping(value = "/test/{id}")
+//    public AjaxResponse deleteUser(@PathVariable Integer id) {
+//        try {
+//            service.deleteById(id);
+//            return AjaxResponse.success("删除成功");
+//        } catch (Exception e) {
+//            return AjaxResponse.error(e.getMessage());
+//        }
+//    }
+//
+//    @PutMapping(value = "/test/{id}")
+//    public AjaxResponse updateUser(@PathVariable Integer id, @RequestBody TestData data) {
+//        try {
+//            TestData testData = service.findById(id);
+//            BeanUtils.copyProperties(data, testData, "id");
+//            service.save(testData);
+//            return AjaxResponse.success();
+//        } catch (Exception e) {
+//            return AjaxResponse.error(e.getMessage());
+//        }
+//    }
+//
+//    @GetMapping(value = "/test/{id}")
+//    public AjaxResponse getUser(@PathVariable Integer id) {
+//        try {
+//            return AjaxResponse.success(service.findById(id));
+//        } catch (Exception e) {
+//            return AjaxResponse.error(e.getMessage());
+//        }
+//    }
 
 }

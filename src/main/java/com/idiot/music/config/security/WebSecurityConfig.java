@@ -49,6 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()// 该方法所返回的对象的方法来配置请求级别的安全细节
                 .antMatchers("/login").permitAll() // 登录页面不拦截
+                .antMatchers("/getToken").permitAll()
                 .antMatchers(HttpMethod.POST, "/checkLogin").permitAll()// 对于登录路径不进行拦截
                 .and().formLogin()//配置登录
                 .loginPage("/login").permitAll()//登录页面路径
